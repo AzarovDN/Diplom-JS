@@ -117,9 +117,168 @@ class Actor {
 		} else {
 			throw Error()
 		}
+	}
+}
 
 
+class Level {
+	constructor(grid, actors) {
+		this.grid = grid;
+		this.actors = actors;
+		
+		if (this.actors instanceof Array) {
+			for (let actor of this.actors) {
+				if (actor.type === 'player') {
+					this.player = actor;
+					break;
+				}
+			}	
+		}
+
+
+		if (this.grid instanceof Array) {
+			this.height = this.grid.length;
+		} else {
+			this.height = 0;
+		}
+
+		if ((this.grid instanceof Array)) {
+			this.width = 0;
+			for (let arr of this.grid) {
+				if (arr instanceof Array) {
+					if (this.width < arr.length) {
+						this.width = arr.length;
+					}	
+				}
+				
+			}
+		} else {
+			this.width = 0;
+		}
+
+			
+
+		this.status = null;
+		this.finishDelay = 1;
+	}
+
+	isFinished() {
+		if (this.status && (this.finishDelay < 0)) {
+			return true;
+		}
+		return false;
+	}
+	
+
+	actorAt(actor) {
+		if (Actor.prototype.isPrototypeOf(actor)) {
+			
+			if (!this.actors) {
+				return undefined
+			}
+			
+			for (let moveActor of this.actors) {
+				if (moveActor.isIntersect(actor)) {
+					return moveActor;
+				} 
+					
+				
+			}
+			return undefined;
+
+		} else {
+			throw Error()
+		}
+	}
+
+	obstacleAt(vector, size) {
+		if (!(Vector.prototype.isPrototypeOf(vector)) ||
+			!(Vector.prototype.isPrototypeOf(size))) {
+			throw Error();
+		}
+
+		if (vector.x < 0 || vector.x + size.x > this.width ||
+			vector.y < 0 ) {
+			return 'wall'
+		}
+
+		if (vector.y + size.y > this.height) {
+			return 'lava'
+		}
+	
+	}
+
+	removeActor(actor) {
+		if (this.actors.includes(actor)) {
+			let index = this.actors.findIndex((el) => el === actor)
+			this.actors.splice(index, 1);
+		}
+	}
+
+	noMoreActors(type) {
+		if (!this.actors) { return true }
+
+		
+		// this.actors.forEach((actor) => {
+		// 	if (actor.type === type) {
+		// 		return false;
+		// 	}
+		// });
+
+		for (let actor of this.actors) {
+			if (actor.type === type) {
+				return false;
+			}	
+		}
+		return true;
 	}
 
 
+	playerTouched(type, actor) {
+		if (type === 'lava' || type === 'fireball') {
+			this.status = 'lost'
+		}
+
+		if (type === 'coin') {
+			this.removeActor(actor);
+			if(this.noMoreActors(type)) {
+				this.status = 'won'
+			}
+		}
+	}
+
+
+
+
 }	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
