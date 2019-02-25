@@ -199,11 +199,19 @@ class Level {
 
 		if (vector.x < 0 || vector.x + size.x > this.width ||
 			vector.y < 0 ) {
-			return 'wall'
+			return 'wall';
 		}
 
 		if (vector.y + size.y > this.height) {
-			return 'lava'
+			return 'lava';
+		}
+		
+		for (let i = Math.round(vector.y); i <= Math.round(size.y); i++) {
+			for (let j = Math.round(vector.x); i <= Math.round(size.x); i++) {
+				if (this.grid[j][i] !== undefined) {
+					return this.grid[j][i];
+				}
+			}
 		}
 	
 	}
