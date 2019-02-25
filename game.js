@@ -247,10 +247,89 @@ class Level {
 		}
 	}
 
-
-
-
 }	
+
+
+class LevelParser{
+	constructor(moveObjDict) {
+		this.moveObjDict = moveObjDict;
+	}
+
+	actorFromSymbol(simbolString) {
+		if(simbolString === undefined) { return undefined }
+
+		if(simbolString in this.moveObjDict) {
+      		return this.moveObjDict[simbolString]
+    	}	
+	}
+
+	obstacleFromSymbol(simbolString) {
+		if(simbolString === 'x') {
+			return 'wall'
+		}
+
+		if(simbolString === '!') {
+			return 'lava'
+		}
+	}
+
+	createGrid(plan){
+		if(plan.length === 0) { return [] }
+
+		for(let i=0; i <plan.length;  i++) {
+        	plan[i] = 	plan[i].split('');
+
+			for (let j = 0; j < plan[i].length; j++) {
+				plan[i][j] = this.obstacleFromSymbol(plan[i][j]);
+			}
+      	}
+        return plan;
+    }
+
+	createActors(plan) {
+		let result = []
+
+		if(plan.length === 0) { return [] }
+		if (this.moveObjDict === undefined) { return [] }
+
+		for(let i=0; i <plan.length;  i++) {
+        	plan[i] = 	plan[i].split('');
+        		for (let j = 0; j < plan[i].length; j++) {
+	          		try{          
+						if(this.actorFromSymbol(plan[i][j]) !== undefined) {
+							plan[i][j] = this.actorFromSymbol(plan[i][j]);
+							let actor = new plan[i][j](new Vector(j,i))
+							plan[i][j] = actor;
+						}
+					} catch(err) {
+						continue;
+					} 
+				}
+			}
+		
+		for (let string of plan) {
+			for (let simbol of string){
+          		if (!(typeof(simbol) === 'string') && Actor.prototype.isPrototypeOf(simbol)) {
+              		result.push(simbol)
+          		}
+        	}  
+    	} 
+      
+		return result;
+	}
+
+    parse(plan) {
+    	let gridPlan = plan.slice();
+    	let actorPlan = plan.slice();
+
+    	let level = new Level(this.createGrid(gridPlan), this.createActors(actorPlan))
+    	return level
+    }
+      
+}
+
+
+
 
 
 
