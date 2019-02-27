@@ -17,7 +17,7 @@ class Vector{
 	}
 
 	times(time) {
-		return new Vector(this.x *= time, this.y *= time);
+		return new Vector(this.x * time, this.y * time);
 	}
 
 }
@@ -107,10 +107,10 @@ class Actor {
 				return true;
 			} 
 
-			if (((this.pos.x > actor.pos.x) && (this.top < actor.bottom)) ||
-				((this.pos.y > actor.pos.y) && (this.left < actor.right)) ||
-				((this.pos.x < actor.pos.x) && (this.bottom < actor.top)) ||
-				((this.pos.y < actor.pos.y) && (this.right < actor.left))) {
+			if (((this.pos.x >= actor.pos.x) && (this.top <= actor.bottom)) ||
+				((this.pos.y >= actor.pos.y) && (this.left <= actor.right)) ||
+				((this.pos.x <= actor.pos.x) && (this.bottom <= actor.top)) ||
+				((this.pos.y <= actor.pos.y) && (this.right <= actor.left))) {
 				return true;
 			}
 
@@ -339,9 +339,7 @@ class LevelParser{
 
 class Fireball  extends Actor {
 	constructor(pos = new Vector (0,0), speed = new Vector (0,0)) {
-		super(pos)
-		this.speed = speed;
-		this.size = new Vector (1, 1)
+		super(pos, new Vector (1, 1), speed)
 	}
 
 	get type() {
@@ -350,8 +348,7 @@ class Fireball  extends Actor {
 
 	getNextPosition(time = 1) {
 		if(this.speed.x === 0 && this.speed.y === 0) { return this.pos }
-		
-		return new Vector(this.pos.x + this.speed.x * time, this.pos.y + this.speed.y * time);
+		return this.pos.plus(this.speed.times(time))
 	}
 
 	handleObstacle() {
@@ -374,28 +371,22 @@ class Fireball  extends Actor {
 
 class HorizontalFireball extends Fireball {
 	constructor(pos){
-		super(pos);
-		this.speed = new Vector (2, 0);
-		this.size = new Vector (1, 1);
+		super(pos, new Vector (2, 0));
 	}
 }
 
 
 class VerticalFireball extends Fireball {
 	constructor(pos){
-		super(pos);
-		this.speed = new Vector (0, 2);
-		this.size = new Vector (1, 1);
+		super(pos, new Vector (0, 2));
 	}
 }
 
 
 class FireRain extends Fireball {
 	constructor(pos){
-		super(pos);
+		super(pos, new Vector (0, 3));
 		this.startPos = pos
-		this.speed = new Vector (0, 3);
-		this.size = new Vector (1, 1);
 	}
 
 	handleObstacle() {
@@ -405,11 +396,9 @@ class FireRain extends Fireball {
 
 
 class Coin extends Actor {
-	constructor(pos) {
-		super(pos)
-		this.pos.x +=0.2;
-		this.pos.y +=0.1;
-		this.size = new Vector (0.6, 0.6)
+	constructor(pos = (new Vector())) {
+		super(pos.plus(new Vector(0.2, 0.1)), new Vector (0.6, 0.6));
+		this.base =this.pos;
 		this.springSpeed = 8;
 		this.springDist = 0.07;
 		this.spring = Math.random() * 2 * Math.PI;
@@ -430,19 +419,19 @@ class Coin extends Actor {
 	getNextPosition(time = 1) {
 		this.updateSpring(time)
 		let springVector = this.getSpringVector()
-		// let newSpringVector = new Vector(0, Math.abs(springVector.y))
-		return new Vector(this.pos.x + springVector.x, this.pos.y + springVector.y)
+		return this.base.plus(this.getSpringVector())
 
+	}
+
+	act(time) {
+		this.pos = this.getNextPosition(time);
 	}
 }
 
 
 class Player extends Actor { 
-	constructor (pos){
-		super(pos)
-		this.pos.y -= 0.5;
-		this.size.x = 0.8;
-		this.size.y = 1.5;
+	constructor (pos = new Vector()){
+		super(pos.plus(new Vector(0, -0.5)), new Vector (0.8, 1.5));
 	}
 
 	get type() {
