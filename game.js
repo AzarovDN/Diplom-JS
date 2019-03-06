@@ -193,18 +193,20 @@ class Level {
 			return 'wall';
 		}
 
-		if (vector.y + size.y > this.height) {
+		if (vector.y + size.y >= this.height) {
 			return 'lava';
 		}
-		
-		for (let i = Math.round(vector.y); i <= Math.round(size.y); i++) {
-			for (let j = Math.round(vector.x); i <= Math.round(size.x); i++) {
+
+		for (let i = Math.floor(vector.y); i <= Math.ceil(size.y); i++) {
+			for (let j = Math.floor(vector.x); i <= Math.ceil(size.x); i++) {
 				if (this.grid[j][i] !== undefined) {
 					return this.grid[j][i];
 				}
 			}
 		}
-	
+
+		
+			
 	}
 
 	removeActor(actor) {
@@ -220,17 +222,12 @@ class Level {
 		}
 
 		
-		// this.actors.every(
-		// 	function(actor) {
-		// 		return actor.type !== type;
-		// 	}
-		// );
+		return this.actors.every(
+			function(actor) {
+				return actor.type !== type;
+			}
+		);
 
-		for (let actor of this.actors) {
-			if (actor.type === type) {
-				return false;
-			}	
-		}
 		return true;
 	}
 
@@ -442,6 +439,17 @@ class Player extends Actor {
 }
 
 const schemas = [
+  [
+    ' o     ',
+    '      	',
+    '     	',
+    '    	',
+    '      	',
+    '    @	',
+    '       ',
+    '!!!!!!!'
+  ],
+
   [
     '       |    	',
     'o           	',
