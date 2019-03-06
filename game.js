@@ -69,49 +69,15 @@ class Actor {
 			return false 
 		}
 
-		if (((this.left < actor.left) && (this.right < actor.left)) &&
-			((this.top < actor.top) && (this.bottom < actor.bottom))) {
-			return false;
+		if ((this.left < actor.left && this.right > actor.left && this.top <= actor.top && this.bottom > actor.top) ||
+			(actor.left < this.left && actor.right > this.left && actor.top <= this.top && actor.bottom > this.top) ||
+			(this.left <= actor.left && this.right > actor.left && this.top > actor.top && this.top < actor.bottom) ||
+			(actor.left <= this.left && actor.right > this.left && actor.top > this.top && actor.top < this.bottom) ||
+			(this.left === actor.left && this.right === actor.right && this.top === actor.top && this.bottom === actor.bottom)) {
+			return true
 		}
 
-		if (((this.left > actor.left) && (this.left > actor.right)) &&
-			((this.top < actor.top) && (this.bottom < actor.bottom))) {
-			return false;
-		}
-
-		if (((this.left < actor.left) && (this.right < actor.left)) &&
-			((this.top > actor.top) && (this.top > actor.bottom))) {
-			return false;
-		}
-
-		if (((this.left > actor.left) && (this.left > actor.right)) &&
-			((this.top > actor.top) && (this.top > actor.bottom))) {
-			return false;
-		}
-
-		if ((this.top === actor.bottom) || (this.bottom === actor.top) || 
-			(this.left === actor.right) || (this.right === actor.left)) {
-			return false;
-		} 
-
-		if (((this.pos.x === actor.pos.x) && (this.pos.y === actor.pos.y)) && 
-			(actor.size.x < 0 && actor.size.y < 0)) {
-			return false;
-		}
-	
-
-		if ((this.top <= actor.top) && (this.bottom >= actor.bottom) && 
-			(this.left <= actor.left) && (this.right >= actor.right)) {
-			return true;
-		} 
-
-		if (((this.pos.x >= actor.pos.x) && (this.top <= actor.bottom)) ||
-			((this.pos.y >= actor.pos.y) && (this.left <= actor.right)) ||
-			((this.pos.x <= actor.pos.x) && (this.bottom <= actor.top)) ||
-			((this.pos.y <= actor.pos.y) && (this.right <= actor.left))) {
-			return true;
-		
-		}
+		return false;
 	}
 }
 
@@ -183,29 +149,32 @@ class Level {
 	}
 
 	obstacleAt(vector, size) {
+
 		if (!(Vector.prototype.isPrototypeOf(vector)) ||
 			!(Vector.prototype.isPrototypeOf(size))) {
 			throw Error('Вектору можно присваивать только вектор типа Vector');
 		}
 
-		if (vector.x < 0 || vector.x + size.x > this.width ||
-			vector.y < 0 ) {
+		let left = Math.floor(vector.x);
+    	let right = Math.ceil(vector.x + size.x);
+    	let top = Math.floor(vector.y);
+    	let bottom = Math.ceil(vector.y + size.y);
+
+		if (left < 0 || right > this.width || top < 0 ) {
 			return 'wall';
 		}
 
-		if (vector.y + size.y >= this.height) {
+		if (bottom > this.height) {
 			return 'lava';
 		}
 
-		for (let i = Math.floor(vector.y); i <= Math.ceil(size.y); i++) {
-			for (let j = Math.floor(vector.x); i <= Math.ceil(size.x); i++) {
-				if (this.grid[j][i] !== undefined) {
-					return this.grid[j][i];
+		for (let i = top; i < bottom; i++) {
+			for (let j = left; j < right; j++) {
+				if (this.grid[i][j]) {
+					return this.grid[i][j];
 				}
 			}
 		}
-
-		
 			
 	}
 
@@ -439,16 +408,7 @@ class Player extends Actor {
 }
 
 const schemas = [
-  [
-    ' o     ',
-    '      	',
-    '     	',
-    '    	',
-    '      	',
-    '    @	',
-    '       ',
-    '!!!!!!!'
-  ],
+
 
   [
     '       |    	',
@@ -462,7 +422,7 @@ const schemas = [
   ],
   [
     '      v  ',
-    '    v    ',
+    '         ',
     '  v      ',
     '        o',
     '        x',
